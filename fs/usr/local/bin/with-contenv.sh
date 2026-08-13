@@ -22,7 +22,7 @@ while test $# -gt 0; do
 done
 
 for variable_to_load in $(ls -1 "$dump_dir"); do
-  printf -v $variable_to_load "$(cat "$dump_dir/$variable_to_load")"
+  printf -v "$variable_to_load" '%s' "$(cat "$dump_dir/$variable_to_load")"
   export $variable_to_load
 done
 
