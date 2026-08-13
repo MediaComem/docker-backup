@@ -1,0 +1,31 @@
+FROM ruby:3.1.7-slim-bullseye
+
+WORKDIR /usr/src/app
+
+COPY Gemfile Gemfile.lock /usr/src/app/
+
+RUN apt-get update && \
+    apt-get install -y build-essential cron libcurl4-openssl-dev libxml2-dev && \
+    apt-get install -y wget gnupg2 zlib1g-dev && \
+    echo 'deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main' >> /etc/apt/sources.list.d/pgdg.list && \
+    wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
+    apt-get update && \
+    apt-get install -y postgresql-client-18 && \
+    apt-get remove -y wget && \
+    pg_dump --version && \
+    bundle config set force_ruby_platform true && \
+    gem install bundler -v "~> 2.0" && \
+    bundle install && \
+    apt-get remove -y build-essential && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY fs/ /
+
+ENV BACKUP_DATA_PATH="/var/lib/backups" \
+    BACKUP_TMP_PATH="/tmp/backup" \
+    RUBYOPT="-r/usr/local/lib/ruby-psych-compat.rb"
+
+STOPSIGNAL SIGKILL
+
+ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]
