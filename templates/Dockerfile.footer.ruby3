@@ -1,0 +1,15 @@
+    gem install bundler -v "~> 2.0" && \
+    bundle install && \
+    apt-get remove -y build-essential && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY fs/ /
+
+ENV BACKUP_DATA_PATH="/var/lib/backups" \
+    BACKUP_TMP_PATH="/tmp/backup" \
+    RUBYOPT="-r/usr/local/lib/ruby-psych-compat.rb"
+
+STOPSIGNAL SIGKILL
+
+ENTRYPOINT [ "/usr/local/bin/entrypoint.sh" ]

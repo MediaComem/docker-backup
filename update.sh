@@ -16,8 +16,14 @@ for ruby_docker_image_tag in $(ls variants); do
       version_file="Dockerfile.$variant"
     fi
 
+    # Ruby 3 images need the Psych compatibility shim (see footer).
+    footer_file="$dockerfile_footer_file"
+    if [[ "$ruby_docker_image_tag" == 3.* ]]; then
+      footer_file="$dockerfile_footer_file.ruby3"
+    fi
+
     printf "FROM ruby:${ruby_docker_image_tag}\n\n" > "$version_file"
-    cat "$dockerfile_header_file" "$variant_file" "$dockerfile_footer_file" >> "$version_file"
+    cat "$dockerfile_header_file" "$variant_file" "$footer_file" >> "$version_file"
     echo "$variant_file -> $version_file"
   done
 done
